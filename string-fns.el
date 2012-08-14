@@ -1,11 +1,11 @@
 ;;; string-fns.el --- an assortment of string-manipulation functions
 
-;; Copyright (C) 1991, 92, 93, 94, 95, 96, 97, 98, 1999, 2006 Noah S. Friedman
+;; Copyright (C) 1991-1999, 2006 Noah S. Friedman
 
 ;; Author: Noah Friedman <friedman@splode.com>
 ;; Maintainer: friedman@splode.com
 
-;; $Id: string-fns.el,v 1.6 2006/12/22 02:29:58 friedman Exp $
+;; $Id: string-fns.el,v 1.7 2012/08/05 02:47:07 friedman Exp $
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -18,29 +18,10 @@
 ;; GNU General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with this program; if not, you can either send email to this
-;; program's maintainer or write to: The Free Software Foundation,
-;; Inc.; 51 Franklin Street, Fifth Floor; Boston, MA 02110-1301, USA.
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 ;;; Code:
-
-;; Originally from Emacs 20.1, modified for compatibility with older emacsen.
-(defmacro with-output-to-string (&rest body)
-  "Execute BODY, return the text it sent to `standard-output', as a string."
-  (` (let ((standard-output
-            (get-buffer-create (generate-new-buffer-name " *string-output*"))))
-       (let ((standard-output standard-output))
-         (,@ body))
-       (let ((orig-buf (current-buffer)))
-         (set-buffer standard-output)
-         (prog1
-             (buffer-string)
-           (kill-buffer nil)
-           (set-buffer orig-buf))))))
-
-;; indent like save-excursion
-(put 'with-output-to-string 'lisp-indent-function 0)
 
 ;;;###autoload
 (defun base16-decode-string (string)
