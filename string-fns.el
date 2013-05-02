@@ -5,7 +5,7 @@
 ;; Author: Noah Friedman <friedman@splode.com>
 ;; Maintainer: friedman@splode.com
 
-;; $Id: string-fns.el,v 1.7 2012/08/05 02:47:07 friedman Exp $
+;; $Id: string-fns.el,v 1.8 2013/04/08 03:22:50 friedman Exp $
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -55,6 +55,12 @@ character.  E.g. the base 16 encoding of \"fnord\" is \"666E6F7264\"."
       (aset n (+ 1 (* 2 i)) (aref tem 1))
       (setq i (1+ i)))
     (upcase n)))
+
+(defun cram-md5-response (user key raw-challenge)
+  "Generate CRAM-MD5 response based on RAW-CHALLENGE."
+  (let* ((challenge (base64-decode-string raw-challenge))
+         (hash (rfc2104-hash 'md5 64 16 key challenge)))
+    (base64-encode-string (format "%s %s" user hash))))
 
 ;; Roland McGrath wrote this.
 ;;;###autoload
