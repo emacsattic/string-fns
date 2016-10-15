@@ -5,7 +5,7 @@
 ;; Author: Noah Friedman <friedman@splode.com>
 ;; Maintainer: friedman@splode.com
 
-;; $Id: string-fns.el,v 1.8 2013/04/08 03:22:50 friedman Exp $
+;; $Id: string-fns.el,v 1.9 2016/08/23 22:34:26 friedman Exp $
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -55,6 +55,24 @@ character.  E.g. the base 16 encoding of \"fnord\" is \"666E6F7264\"."
       (aset n (+ 1 (* 2 i)) (aref tem 1))
       (setq i (1+ i)))
     (upcase n)))
+
+(defun chop-string (string piece-length &optional truncated-ok)
+  "Split STRING into PIECE-LENGTH size pieces, and return as a list of strings.
+Optional argument TRUNCATED-OK means allow last string to be less than
+PIECE-LENGTH in length if STRING isn't an integral multiple of the length."
+  (unless (or truncated-ok
+              (= 0 (% (length string) piece-length)))
+    (error "STRING length must be an integral multiple of PIECE-LENGTH"))
+  (let ((maxlen (length string))
+        (pieces nil)
+        (l piece-length)
+        (i 0))
+    (while (< i maxlen)
+      (if (> (+ i l) maxlen)
+          (setq l (- maxlen i)))
+      (setq pieces (cons (substring string i (+ i l)) pieces)
+            i (+ i piece-length)))
+    (nreverse pieces)))
 
 (defun cram-md5-response (user key raw-challenge)
   "Generate CRAM-MD5 response based on RAW-CHALLENGE."
@@ -210,8 +228,9 @@ The arguments to this function are, in order:
     (and (string-match re string startpos)
          (substring string (match-beginning n) (match-end n)))))
 
+;; replace-string-regexp is a standard emacs function
 ;;;###autoload
-(defun replace-string-regexp (string regexp replacement &optional count)
+(defun nf-replace-string-regexp (string regexp replacement &optional count)
   "In STRING, replace occurences matching REGEXP with REPLACEMENT.
 Optional argument COUNT means replace first COUNT occurences found,
 otherwise replace all of them.
