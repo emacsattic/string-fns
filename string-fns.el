@@ -1,29 +1,14 @@
 ;;; string-fns.el --- an assortment of string-manipulation functions
 
-;; Copyright (C) 1991-1999, 2006 Noah S. Friedman
-
 ;; Author: Noah Friedman <friedman@splode.com>
-;; Maintainer: friedman@splode.com
+;; Created: 1999-10-05
+;; Public domain.
 
-;; $Id: string-fns.el,v 1.9 2016/08/23 22:34:26 friedman Exp $
-
-;; This program is free software; you can redistribute it and/or modify
-;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 2, or (at your option)
-;; any later version.
-;;
-;; This program is distributed in the hope that it will be useful,
-;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;; GNU General Public License for more details.
-;;
-;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;; $Id: string-fns.el,v 1.10 2017/08/31 21:33:57 friedman Exp $
 
 ;;; Commentary:
 ;;; Code:
 
-;;;###autoload
 (defun base16-decode-string (string)
   "Convert a hexadecimal-encoded string to its ascii equivalent.
 Each character in the resulting string corresponds to a 2-digit hexadecimal
@@ -40,7 +25,6 @@ character in STRING.  E.g. the hex encoding of \"666E6F7264\" is \"fnord\"."
       (setq i (1+ i)))
     s))
 
-;;;###autoload
 (defun base16-encode-string (string)
   "Return a string representing the hexadecimal encoding of STRING.
 Each character in STRING can be represented by a 2-digit hexadecimal
@@ -81,7 +65,6 @@ PIECE-LENGTH in length if STRING isn't an integral multiple of the length."
     (base64-encode-string (format "%s %s" user hash))))
 
 ;; Roland McGrath wrote this.
-;;;###autoload
 (defun glob->regexp (pattern)
   (let ((len (length pattern))
 	(i 0)
@@ -125,7 +108,6 @@ PIECE-LENGTH in length if STRING isn't an integral multiple of the length."
 	    i (1+ i)))
     pattern))
 
-;;;###autoload
 (defun integer-to-string (n &optional base)
   "Return the representation of N as a string in base BASE (default 10).
 Uses a minus sign if negative.
@@ -146,7 +128,6 @@ BASE must be between 2 and 35, inclusive."
     (if negativep (setq digits (cons ?- digits)))
     (mapconcat 'char-to-string (or digits '(?0)) "")))
 
-;;;###autoload
 (defun matching-substring (n &optional string regexp)
   "Return substring matched by last search.
 N specifies which match data pair to use
@@ -162,7 +143,6 @@ last search is used."
 	  (substring string (match-beginning n) (match-end n))
 	(buffer-substring (match-beginning n) (match-end n)))))
 
-;;;###autoload
 (defun non-whitespace-regexp (&optional table)
   "Return a regular expression matching a non-whitespace character.
 This function is sensitive to the current buffer's syntax table unless
@@ -192,7 +172,6 @@ TABLE, a syntax table, is specified."
                (set-syntax-table orig-table)))))
     (concat "[^" s "]")))
 
-;;;###autoload
 (defun path-string->list (path)
   "Convert a colon-separated path string into a list.
 Any null paths are converted to \".\" in the returned list so that
@@ -205,7 +184,6 @@ elements of the path may be treated consistently."
       (setq l (cdr l)))
     list))
 
-;;;###autoload
 (defun pretty-directory-file-name (directory)
   "Like `directory-file-name', but truncate home directory prefix to `~/'."
   (let ((dir (directory-file-name directory))
@@ -215,7 +193,6 @@ elements of the path may be treated consistently."
           (concat "~" (substring dir (match-end 0)))
         dir))))
 
-;;;###autoload
 (defun re-substring (re string n &optional startpos)
   "Return the Nth substring matched by RE in STRING.
 The arguments to this function are, in order:
@@ -229,7 +206,6 @@ The arguments to this function are, in order:
          (substring string (match-beginning n) (match-end n)))))
 
 ;; replace-string-regexp is a standard emacs function
-;;;###autoload
 (defun nf-replace-string-regexp (string regexp replacement &optional count)
   "In STRING, replace occurences matching REGEXP with REPLACEMENT.
 Optional argument COUNT means replace first COUNT occurences found,
@@ -250,7 +226,6 @@ The original string is not modified."
         (setq pos (match-end 0)))
       (concat newstr (substring string pos)))))
 
-;;;###autoload
 (defun strchr (s c)
   "Return position of first occurence of char C in string S.
 If there are no occurences, return -1."
@@ -264,7 +239,6 @@ If there are no occurences, return -1."
         (setq i (1+ i))))
     p))
 
-;;;###autoload
 (defun string-split (string &optional separator limit)
   "Split STRING at occurences of SEPARATOR.  Return a list of substrings.
 Optional argument SEPARATOR can be any regexp, but anything matching the
@@ -294,7 +268,6 @@ If optional arg LIMIT is specified, split into no more than that many
         (setq string-list (cons str string-list))))
     (nreverse string-list)))
 
-;;;###autoload
 (defun string<->vector (obj)
   "Convert a string to a vector of characters or vice-versa."
   (let* ((l (length obj))
@@ -313,7 +286,6 @@ If optional arg LIMIT is specified, split into no more than that many
 
 ;; The string-to-number builtin in versions of emacs later than 19 support
 ;; a base argument already; this function is for use with v19 and earlier.
-;;;###autoload
 (defun string-to-number-base (string &optional base)
   "Convert STRING to a number by parsing it as a decimal number.
 This parses both integers and floating point numbers.
@@ -352,7 +324,6 @@ ignored."
                (setq p l)))
            n))))
 
-;;;###autoload
 (defun with-command-output-to-string (&rest args)
   "Execute inferior COMMAND, returning the text it outputs as a string.
 Remaining arguments are optional arguments to the external command."
@@ -365,7 +336,15 @@ Remaining arguments are optional arguments to the external command."
       (kill-buffer buf)
       (set-buffer orig-buf))))
 
-;;;###autoload
+(defun with-command-output-to-clipboard (&rest args)
+  "Execute inferior COMMAND, putting the text it outputs in the window system clipboard.
+Remaining arguments are optional arguments to the external command."
+  (let ((s (apply 'with-command-output-to-string args)))
+    (when (char-equal (aref s (1- (length s))) ?\C-j)
+      (setq s (substring s 0 -1)))
+    (x-own-selection-internal 'CLIPBOARD s)
+    nil))
+
 (defun current-time-vector ()
   "Return a vector containing current date and time information.
 Components are day, month, date, hour, minutes, seconds, and year.
